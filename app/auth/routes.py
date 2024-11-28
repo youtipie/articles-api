@@ -7,14 +7,14 @@ from app.utils import with_validation
 
 
 @bp.route("/login", methods=["POST"])
-@with_validation({"email": str, "password": str})
+@with_validation({"username": str, "password": str})
 def login():
     username = request.json["username"]
     password = request.json["password"]
 
     user = User.query.filter_by(username=username).first()
     if not user or not user.check_password(password):
-        return {"message": "Invalid email or password."}, 401
+        return {"message": "Invalid username or password."}, 401
 
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))

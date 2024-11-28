@@ -10,14 +10,21 @@ from app.utils import with_auth, with_validation
 
 @bp.route("", methods=["GET"])
 @with_auth
-def get_articles():
+def get_articles(user: User):
     search_query = request.args.get("search_query")
     user_id = request.args.get("user_id")
+    article_id = request.args.get("id")
+
+    if isinstance(article_id, str) and article_id.isdigit():
+        article = Article.query.filter_by(id=int(article_id)).first()
+        if not article:
+            return {"message": "Article with such id does not exist"}, 404
+        return article.to_dict(), 200
 
     try:
         page = int(request.args.get("page", 1))
     except ValueError:
-        return {"message": "Page number must be int value!"}
+        return {"message": "Page number must be int value!"}, 400
 
     page_size = current_app.config["PAGE_SIZE"]
 
@@ -78,7 +85,7 @@ def update_article(user: User):
     return {"message": "Article successfully updated"}, 200
 
 
-@bp.route("", methods=["PUT"])
+@bp.route("", methods=["DELETE"])
 @with_auth
 @with_validation({"article_id": int})
 def delete_article(user: User):
@@ -88,7 +95,7 @@ def delete_article(user: User):
     if not article:
         return {"message": "Article with such id does not exist"}, 404
 
-    if article.user != user and user.role_id not in current_app.cached_roles["admin"]:
+    if article.user != user and user.role_id != current_app.cached_roles["admin"].id:
         return {"message": "You cannot delete this article"}, 403
 
     db.session.delete(article)

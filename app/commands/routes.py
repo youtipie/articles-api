@@ -1,3 +1,4 @@
+import click
 from flask import current_app
 from sqlalchemy.exc import IntegrityError
 
@@ -8,25 +9,23 @@ from app.users.models import User
 
 
 @bp.cli.command("create-user")
-def create_user():
-    while True:
-        try:
-            username = input("Enter username: ")
-            password = input("Enter password: ")
-            role = input("Enter role name (admin, editor, viewer): ")
-            if role not in current_app.cached_roles:
-                print("Such role does not exist")
-                continue
-            user = User(username=username, password=password, role_id=current_app.cached_roles.get(role).id)
-        except ValueError as e:
-            print(str(e))
-        except IntegrityError as e:
-            print(str(e))
-        else:
-            db.session.add(user)
-            db.session.commit()
-            print(f"User '{username}' created successfully!")
-            break
+@click.option("--username", required=True)
+@click.option("--password", required=True)
+@click.option("--role", required=True)
+def create_user(username, password, role):
+    try:
+        if role not in current_app.cached_roles:
+            print("Such role does not exist")
+            return
+        user = User(username=username, password=password, role_id=current_app.cached_roles.get(role).id)
+
+        db.session.add(user)
+        db.session.commit()
+        print(f"User '{username}' created successfully!")
+    except ValueError as e:
+        print(str(e))
+    except IntegrityError:
+        print("User with such username already exists")
 
 
 @bp.cli.command("prepopulate-db")

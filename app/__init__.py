@@ -39,8 +39,8 @@ def create_app(config=Config):
     from .article import bp as article_bp
     app.register_blueprint(article_bp)
 
-
     with app.app_context():
+        db.create_all()
         app.cached_roles = {role.name.lower(): role for role in db.session.query(user_models.Role).all()}
 
     return app
