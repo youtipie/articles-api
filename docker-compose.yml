@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+    env_file: ".env"
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    env_file: ".env"
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5430:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data/pgdata
+    restart: unless-stopped
+    tty: true
+
+volumes:
+  pgdata:
+    driver: local
