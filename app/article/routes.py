@@ -13,13 +13,6 @@ from app.utils import with_auth, with_validation
 def get_articles(user: User):
     search_query = request.args.get("search_query")
     user_id = request.args.get("user_id")
-    article_id = request.args.get("id")
-
-    if isinstance(article_id, str) and article_id.isdigit():
-        article = Article.query.filter_by(id=int(article_id)).first()
-        if not article:
-            return {"message": "Article with such id does not exist"}, 404
-        return article.to_dict(), 200
 
     try:
         page = int(request.args.get("page", 1))
