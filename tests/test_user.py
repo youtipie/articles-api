@@ -103,7 +103,7 @@ def test_get_user_by_username(client, access_headers):
 
 
 def test_get_user_by_id(client, access_headers):
-    response = client.get("/users?id=1", headers=access_headers)
+    response = client.get("/users/1", headers=access_headers)
     user = response.json
     assert response.status_code == 200
     assert user["username"] == "admin"
@@ -118,8 +118,7 @@ def test_update_user(app, client, access_headers, generate_users):
     new_password = "NewSecurePassword12345"
     new_role = random.choice([role for role in app.cached_roles.keys() if role != old_role.name])
 
-    response = client.put("/users", headers=access_headers, json={
-        "user_id": user_to_update.id,
+    response = client.put(f"/users/{user_to_update.id}", headers=access_headers, json={
         "username": new_username,
         "password": new_password,
         "role": new_role
@@ -136,7 +135,7 @@ def test_update_user(app, client, access_headers, generate_users):
 
 
 def test_delete_user(app, client, access_headers, generate_users):
-    response = client.delete("/users", headers=access_headers, json={"user_id": 2})
+    response = client.delete("/users/2", headers=access_headers)
     assert response.status_code == 200
     assert response.json["message"] == "User deleted successfully"
     with app.app_context():

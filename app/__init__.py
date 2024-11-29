@@ -6,13 +6,12 @@ from flask_cors import CORS
 
 from .config import Config
 
-# from .docs import spec
+from docs import spec
 
 db = SQLAlchemy()
 jwt = JWTManager()
 
-
-# swagger = Swagger(template=spec)
+swagger = Swagger(template=spec)
 
 
 def create_app(config=Config):
@@ -25,7 +24,7 @@ def create_app(config=Config):
 
     db.init_app(app)
     jwt.init_app(app)
-    # swagger.init_app(app)
+    swagger.init_app(app)
 
     from .commands import bp as commands_bp
     app.register_blueprint(commands_bp)

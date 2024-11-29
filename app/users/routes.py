@@ -13,15 +13,8 @@ def get_roles():
 
 @bp.route("", methods=["GET"])
 @with_auth
-def get_users(user):
+def get_users(user: User):
     username = request.args.get("username")
-    user_id = request.args.get("id")
-
-    if isinstance(user_id, str) and user_id.isdigit():
-        user = User.query.filter_by(id=int(user_id)).first()
-        if not user:
-            return {"message": "User with such id does not exist"}, 404
-        return user.to_dict(), 200
 
     try:
         page = int(request.args.get("page", 1))
@@ -45,23 +38,31 @@ def get_users(user):
     }
 
 
-@bp.route("", methods=["PUT"])
+@bp.route("/<int:user_id>", methods=["GET"])
 @with_auth
-def update_user(user: User):
-    user_id = request.json.get("user_id")
+def get_user_by_id(user: User, user_id: int):
+    user = User.query.filter_by(id=int(user_id)).first()
+    if not user:
+        return {"message": "User with such id does not exist"}, 404
+    return user.to_dict(), 200
+
+
+@bp.route("/<int:user_id>", methods=["PUT"])
+@with_auth
+def update_user(user: User, user_id: int):
     username = request.json.get("username")
     password = request.json.get("password")
 
     role = request.json.get("role")
     if role not in current_app.cached_roles:
         return {"message": f"Role '{role} does not exist"}, 404
-    if role is not None and user_id is None:
+    if role is not None and user_id == user.id:
         return {"message": "You cannot change your role"}, 403
 
-    if user.role_id != current_app.cached_roles["admin"].id and user_id is not None:
+    if user.role_id != current_app.cached_roles["admin"].id and user_id != user.id:
         return {"message": "You cannot change other users` data"}, 403
 
-    if user_id is not None:
+    if user_id != user.id:
         user_to_change = User.query.filter_by(id=user_id).first()
         if not user_to_change:
             return {"message": "User with such id does not exist"}, 404
@@ -78,15 +79,13 @@ def update_user(user: User):
     return {"message": "Changed user successfully"}, 200
 
 
-@bp.route("", methods=["DELETE"])
+@bp.route("/<int:user_id>", methods=["DELETE"])
 @with_auth
-def delete_user(user: User):
-    user_id = request.json.get("user_id")
-
-    if user.role_id != current_app.cached_roles["admin"].id and user_id is not None:
+def delete_user(user: User, user_id: int):
+    if user.role_id != current_app.cached_roles["admin"].id and user_id != user.id:
         return {"message": "You cannot delete other users"}, 403
 
-    if user_id is not None:
+    if user_id != user.id:
         user_to_delete = User.query.filter_by(id=user_id).first()
         if not user_to_delete:
             return {"message": "User with such id does not exist"}, 404

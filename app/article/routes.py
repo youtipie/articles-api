@@ -48,6 +48,15 @@ def get_articles(user: User):
     }
 
 
+@bp.route("/<int:article_id>", methods=["GET"])
+@with_auth
+def get_article_by_id(user: User, article_id: int):
+    article = Article.query.filter_by(id=int(article_id)).first()
+    if not article:
+        return {"message": "Article with such id does not exist"}, 404
+    return article.to_dict(), 200
+
+
 @bp.route("", methods=["POST"])
 @with_auth
 @with_validation({"title": str, "content": str})
@@ -61,11 +70,9 @@ def add_article(user: User):
     return article.to_dict(), 201
 
 
-@bp.route("", methods=["PUT"])
+@bp.route("/<int:article_id>", methods=["PUT"])
 @with_auth
-@with_validation({"article_id": int})
-def update_article(user: User):
-    article_id = request.json["article_id"]
+def update_article(user: User, article_id: int):
     title = request.json.get("title")
     content = request.json.get("content")
 
@@ -85,12 +92,9 @@ def update_article(user: User):
     return {"message": "Article successfully updated"}, 200
 
 
-@bp.route("", methods=["DELETE"])
+@bp.route("/<int:article_id>", methods=["DELETE"])
 @with_auth
-@with_validation({"article_id": int})
-def delete_article(user: User):
-    article_id = request.json["article_id"]
-
+def delete_article(user: User, article_id: int):
     article = Article.query.filter_by(id=article_id).first()
     if not article:
         return {"message": "Article with such id does not exist"}, 404

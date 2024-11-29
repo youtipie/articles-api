@@ -61,7 +61,7 @@ def test_get_article_by_username(client, access_headers, generate_articles):
 
 
 def test_get_article_by_id(client, access_headers, generate_articles):
-    response = client.get("/article?id=1", headers=access_headers)
+    response = client.get("/article/1", headers=access_headers)
     article = response.json
     assert response.status_code == 200
     assert article["title"] == "title0"
@@ -87,8 +87,7 @@ def test_update_article(app, client, access_headers, generate_articles):
     new_title = "Updated title"
     new_content = "Updated content"
 
-    response = client.put("/article", headers=access_headers, json={
-        "article_id": article_to_update.id,
+    response = client.put(f"/article/{article_to_update.id}", headers=access_headers, json={
         "title": new_title,
         "content": new_content,
     })
@@ -103,7 +102,7 @@ def test_update_article(app, client, access_headers, generate_articles):
 
 
 def test_delete_article(app, client, access_headers, generate_articles):
-    response = client.delete("/article", headers=access_headers, json={"article_id": 2})
+    response = client.delete("/article/2", headers=access_headers)
     assert response.status_code == 200
     assert response.json["message"] == "Article successfully deleted"
     with app.app_context():
