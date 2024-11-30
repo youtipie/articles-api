@@ -15,6 +15,7 @@ an API to manage articles, and tests are written using pytest.
     - [Run the Tests](#run-the-tests)
     - [Loading Initial Data](#loading-initial-data)
     - [Creating users](#creating-users)
+- [Deployment](#deployment)
 
 ## Prerequisites
 
@@ -94,7 +95,7 @@ To run the tests using pytest, follow these steps:
     poetry run pytest
     ```
 
-## Loading Initial Data
+### Loading Initial Data
 
 Loading initial data can be done with flask cli command:
 
@@ -110,7 +111,7 @@ docker compose exec app poetry run flask commands prepopulate-db
 
 This will add few articles and users to your database.
 
-## Creating users
+### Creating users
 
 Users can be created with following flask cli command:
 
@@ -127,3 +128,11 @@ docker compose exec app poetry run flask commands create-user --username <userna
 Where `--username` is username of the user, `--password` is the password of the user and `--role` is role of the user (
 can be admin, editor or viewer)
 
+## Deployment
+
+App was successfully deployed to AWS and available at
+this [address](http://ec2-18-198-50-53.eu-central-1.compute.amazonaws.com/apidocs/#/)
+
+Screenshot of swagger docs of deployed app:
+
+![img.png](misc/deployment.png)
